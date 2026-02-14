@@ -4,6 +4,10 @@
 Демонстрирует свою any, встроенную all и сортировку СЛИЯНИЕМ.
 """
 
+import time
+import random
+import sys
+
 def custom_any(iterable):
     """
     Своя реализация функции any().
@@ -65,6 +69,72 @@ def merge(left, right):
     
     return result
 
+def performance_test():
+    """
+    Тест производительности сортировки слиянием на 1 миллионе элементов.
+    """
+    print("\n" + "=" * 60)
+    print("ТЕСТ ПРОИЗВОДИТЕЛЬНОСТИ ЗАДАЧИ 1")
+    print("=" * 60)
+    
+    # Генерируем 1 миллион случайных чисел
+    print("Генерация 1,000,000 случайных чисел...")
+    start_gen = time.time()
+    
+    # Генерируем список из 1 млн случайных чисел от 0 до 10,000
+    test_data = [random.randint(0, 10000) for _ in range(1_000_000)]
+    
+    end_gen = time.time()
+    gen_time = end_gen - start_gen
+    print(f"Время генерации: {gen_time:.2f} секунд")
+    print(f"Размер списка: {len(test_data):,} элементов")
+    
+    # Показываем первые 10 элементов для примера
+    print(f"Первые 10 элементов: {test_data[:10]}")
+    
+    # Измеряем память (примерно)
+    size_in_mb = sys.getsizeof(test_data) / (1024 * 1024)
+    print(f"Приблизительный размер в памяти: {size_in_mb:.2f} МБ")
+    
+    # Тест сортировки
+    print("\nЗапуск сортировки слиянием...")
+    start_sort = time.time()
+    
+    sorted_data = merge_sort(test_data)
+    
+    end_sort = time.time()
+    sort_time = end_sort - start_sort
+    
+    print(f"Время сортировки: {sort_time:.2f} секунд")
+    print(f"Общее время: {gen_time + sort_time:.2f} секунд")
+    
+    # Проверка, что список действительно отсортирован
+    is_sorted = all(sorted_data[i] <= sorted_data[i+1] for i in range(min(10, len(sorted_data)-1)))
+    print(f"Первые 10 элементов после сортировки: {sorted_data[:10]}")
+    print(f"Последние 10 элементов: {sorted_data[-10:]}")
+    print(f"Сортировка выполнена успешно: {is_sorted and len(sorted_data) == 1_000_000}")
+    
+    # Вывод производительности
+    print("\n" + "-" * 40)
+    print("ИТОГИ ТЕСТИРОВАНИЯ:")
+    print(f"Количество элементов: 1,000,000")
+    print(f"Время сортировки: {sort_time:.2f} сек")
+    print(f"Элементов в секунду: {1_000_000 / sort_time:.0f}")
+    print(f"Сложность алгоритма: O(n log n)")
+    print("-" * 40)
+    
+    # Сравнение со встроенной сортировкой Python (для справки)
+    print("\nСравнение со встроенной сортировкой (TimSort):")
+    test_copy = test_data.copy()
+    start_builtin = time.time()
+    test_copy.sort()
+    end_builtin = time.time()
+    builtin_time = end_builtin - start_builtin
+    print(f"Встроенная сортировка: {builtin_time:.2f} сек")
+    print(f"Разница: {sort_time / builtin_time:.1f}x медленнее")
+    
+    return sort_time
+
 def main_task1():
     """Основная функция для задачи 1."""
     print("-" * 30)
@@ -72,7 +142,13 @@ def main_task1():
     print("-" * 30)
 
     # Ввод данных от пользователя
-    input_str = input("Введите элементы списка через пробел: ")
+    input_str = input("Введите элементы списка через пробел (или 'test' для запуска теста производительности): ")
+    
+    # Проверка на тестовый режим
+    if input_str.lower() == 'test':
+        performance_test()
+        return
+    
     # Разбиваем строку на части
     items = input_str.split()
 
@@ -104,9 +180,13 @@ def main_task1():
     # 3. Сортировка СЛИЯНИЕМ (только если все элементы - числа)
     if all_are_numbers:
         # Сортируем с помощью merge_sort (возвращает новый список)
+        start_time = time.time()
         sorted_list = merge_sort(data_list)
+        end_time = time.time()
+        
         print(f"3. Отсортированный список (СЛИЯНИЕМ): {sorted_list}")
         print(f"   Исходный список не изменился: {data_list}")
+        print(f"   Время сортировки: {(end_time - start_time)*1000:.2f} мс")
     else:
         print("3. Невозможно отсортировать, так как список содержит не только числа.")
 
